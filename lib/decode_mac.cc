@@ -38,9 +38,15 @@ public:
           d_debug(debug),
           d_ofdm(BPSK_1_2),
           d_frame(d_ofdm, 0),
-          d_frame_complete(true)
+          d_frame_complete(true),
+          d_check_crc(true)
     {
         message_port_register_out(pmt::mp("out"));
+    }
+
+    void check_crc(bool check_crc)
+    {
+        d_check_crc = check_crc;
     }
 
     int general_work(int noutput_items,
@@ -140,7 +146,8 @@ public:
         // skip service field
         boost::crc_32_type result;
         result.process_bytes(out_bytes + 2, d_frame.psdu_size);
-        if (result.checksum() != 558161692) {
+
+        if (d_check_crc && result.checksum() != 558161692) {
             dout << "checksum wrong -- dropping" << std::endl;
             return;
         }
@@ -149,7 +156,7 @@ public:
               d_ofdm.encoding % d_frame.psdu_size % d_frame.n_sym);
 
         // create PDU
-        pmt::pmt_t blob = pmt::make_blob(out_bytes + 2, d_frame.psdu_size - 4);
+        pmt::pmt_t blob = pmt::make_blob(out_bytes + 2, d_frame.psdu_size - (d_check_crc ? 4 : 0));
         d_meta =
             pmt::dict_add(d_meta, pmt::mp("dlt"), pmt::from_long(LINKTYPE_IEEE802_11));
 
@@ -247,6 +254,7 @@ private:
 
     int copied;
     bool d_frame_complete;
+    bool d_check_crc;
 };
 
 decode_mac::sptr decode_mac::make(bool log, bool debug)
