@@ -24,7 +24,7 @@
 #include <iostream>
 
 #define MAX_PAYLOAD_SIZE 1500
-#define MAX_PSDU_SIZE (MAX_PAYLOAD_SIZE + 28) // MAC, CRC
+#define MAX_PSDU_SIZE (MAX_PAYLOAD_SIZE + 40)
 #define MAX_SYM (((16 + 8 * MAX_PSDU_SIZE + 6) / 24) + 1)
 #define MAX_ENCODED_BITS ((16 + 8 * MAX_PSDU_SIZE + 6) * 2 + 288)
 
