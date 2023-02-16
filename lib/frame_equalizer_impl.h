@@ -37,6 +37,8 @@ public:
     void set_bandwidth(double bw);
     void set_frequency(double freq);
 
+    void set_size_limit(int size);
+
     void forecast(int noutput_items, gr_vector_int& ninput_items_required);
     int general_work(int noutput_items,
                      gr_vector_int& ninput_items,
@@ -67,6 +69,8 @@ private:
     int d_frame_bytes;
     int d_frame_symbols;
     int d_frame_encoding;
+
+    int d_size_limit;
 
     uint8_t d_deinterleaved[48];
     gr_complex symbols[48];

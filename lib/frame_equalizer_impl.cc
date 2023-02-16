@@ -48,7 +48,8 @@ frame_equalizer_impl::frame_equalizer_impl(
       d_bw(bw),
       d_frame_bytes(0),
       d_frame_symbols(0),
-      d_freq_offset_from_synclong(0.0)
+      d_freq_offset_from_synclong(0.0),
+      d_size_limit(0)
 {
 
     message_port_register_out(pmt::mp("symbols"));
@@ -105,6 +106,12 @@ void frame_equalizer_impl::set_frequency(double freq)
 {
     gr::thread::scoped_lock lock(d_mutex);
     d_freq = freq;
+}
+
+void frame_equalizer_impl::set_size_limit(int size)
+{
+    gr::thread::scoped_lock lock(d_mutex);
+    d_size_limit = size;
 }
 
 void frame_equalizer_impl::forecast(int noutput_items,
@@ -216,7 +223,6 @@ int frame_equalizer_impl::general_work(int noutput_items,
         if (d_current_symbol == 2) {
 
             if (decode_signal_field(out + o * 48)) {
-
                 pmt::pmt_t dict = pmt::make_dict();
                 dict = pmt::dict_add(
                     dict, pmt::mp("frame bytes"), pmt::from_uint64(d_frame_bytes));
@@ -299,6 +305,9 @@ bool frame_equalizer_impl::parse_signal(uint8_t* decoded_bits)
             d_frame_bytes = d_frame_bytes | (1 << (i - 5));
         }
     }
+
+    if (d_size_limit && (d_frame_bytes > d_size_limit))
+        d_frame_bytes = d_size_limit;
 
     if (parity != decoded_bits[17]) {
         dout << "SIGNAL: wrong parity" << std::endl;
