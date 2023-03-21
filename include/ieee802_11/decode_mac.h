@@ -28,6 +28,8 @@ class IEEE802_11_API decode_mac : virtual public block
 public:
     typedef std::shared_ptr<decode_mac> sptr;
     static sptr make(bool log = false, bool debug = false);
+
+    virtual void check_crc(bool) = 0;
 };
 
 } // namespace ieee802_11
