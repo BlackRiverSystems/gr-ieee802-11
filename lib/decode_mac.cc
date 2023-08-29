@@ -21,7 +21,6 @@
 
 #include <gnuradio/io_signature.h>
 #include <boost/crc.hpp>
-#include <boost/format.hpp> 
 #include <iomanip>
 
 using namespace gr::ieee802_11;
@@ -154,8 +153,10 @@ public:
             return;
         }
 
-        mylog(boost::format("encoding: %1% - length: %2% - symbols: %3%") %
-              d_ofdm.encoding % d_frame.psdu_size % d_frame.n_sym);
+        mylog("encoding: {} - length: {} - symbols: {}",
+              d_ofdm.encoding,
+              d_frame.psdu_size,
+              d_frame.n_sym);
 
         // create PDU
         pmt::pmt_t blob = pmt::make_blob(out_bytes + 2, d_frame.psdu_size - (d_check_crc ? 4 : 0));
@@ -169,8 +170,8 @@ public:
     {
 
         int n_cbps = d_ofdm.n_cbps;
-        int first[n_cbps];
-        int second[n_cbps];
+        int first[MAX_BITS_PER_SYM];
+        int second[MAX_BITS_PER_SYM];
         int s = std::max(d_ofdm.n_bpsc / 2, 1);
 
         for (int j = 0; j < n_cbps; j++) {

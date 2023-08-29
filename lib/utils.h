@@ -28,16 +28,18 @@ using gr::ieee802_11::Encoding;
 #define MAX_PAYLOAD_SIZE 1500
 #define MAX_PSDU_SIZE (MAX_PAYLOAD_SIZE + 40)
 #define MAX_SYM (((16 + 8 * MAX_PSDU_SIZE + 6) / 24) + 1)
-#define MAX_ENCODED_BITS ((16 + 8 * MAX_PSDU_SIZE + 6) * 2 + 288)
+#define MAX_BITS_PER_SYM 288
+#define MAX_ENCODED_BITS ((16 + 8 * MAX_PSDU_SIZE + 6) * 2 + MAX_BITS_PER_SYM)
 
 #define dout d_debug&& std::cout
-#define mylog(msg)                      \
+#define mylog(...)                      \
     do {                                \
         if (d_log) {                    \
-            GR_LOG_INFO(d_logger, msg); \
+            d_logger->info(__VA_ARGS__); \
         }                               \
     } while (0);
 
+#pragma pack(push, 1)
 struct mac_header {
     // protocol version, type, subtype, to_ds, from_ds, ...
     uint16_t frame_control;
@@ -46,7 +48,8 @@ struct mac_header {
     uint8_t addr2[6];
     uint8_t addr3[6];
     uint16_t seq_nr;
-} __attribute__((packed));
+};
+#pragma pack(pop)
 
 /**
  * WIFI parameters
