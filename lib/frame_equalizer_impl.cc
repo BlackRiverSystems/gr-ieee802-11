@@ -40,6 +40,7 @@ frame_equalizer_impl::frame_equalizer_impl(
     : gr::block("frame_equalizer",
                 gr::io_signature::make(1, 1, 64 * sizeof(gr_complex)),
                 gr::io_signature::make(1, 1, 48)),
+      d_burst_id(-1),
       d_current_symbol(0),
       d_log(log),
       d_debug(debug),
@@ -154,6 +155,12 @@ int frame_equalizer_impl::general_work(int noutput_items,
             d_epsilon0 = pmt::to_double(tags.front().value) * d_bw / (2 * M_PI * d_freq);
             d_er = 0;
 
+            d_burst_id = -1;
+            get_tags_in_window(tags, 0, i, i + 1, pmt::string_to_symbol("burst_id"));
+            if (tags.size()) {
+                d_burst_id = pmt::to_uint64(tags.front().value);
+            }
+
             dout << "epsilon: " << d_epsilon0 << std::endl;
         }
 
@@ -240,6 +247,11 @@ int frame_equalizer_impl::general_work(int noutput_items,
                 std::vector<gr_complex> csi = d_equalizer->get_csi();
                 dict = pmt::dict_add(
                     dict, pmt::mp("csi"), pmt::init_c32vector(csi.size(), csi));
+
+                if (d_burst_id != -1) {
+                    dict = pmt::dict_add(
+                        dict, pmt::mp("burst_id"), pmt::from_uint64(d_burst_id));
+                }
 
                 pmt::pmt_t pairs = pmt::dict_items(dict);
                 for (int i = 0; i < pmt::length(pairs); i++) {

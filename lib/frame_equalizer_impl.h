@@ -55,6 +55,7 @@ private:
     std::vector<gr::tag_t> tags;
     bool d_debug;
     bool d_log;
+    int d_burst_id;
     int d_current_symbol;
     viterbi_decoder d_decoder;
 
