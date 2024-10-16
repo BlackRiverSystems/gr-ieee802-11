@@ -44,7 +44,7 @@ frame_equalizer_impl::frame_equalizer_impl(
       d_current_symbol(0),
       d_log(log),
       d_debug(debug),
-      d_equalizer(NULL),
+      d_equalizer(nullptr),
       d_freq(freq),
       d_bw(bw),
       d_frame_bytes(0),
@@ -72,25 +72,24 @@ frame_equalizer_impl::~frame_equalizer_impl() {}
 void frame_equalizer_impl::set_algorithm(Equalizer algo)
 {
     gr::thread::scoped_lock lock(d_mutex);
-    delete d_equalizer;
 
     switch (algo) {
 
     case COMB:
         dout << "Comb" << std::endl;
-        d_equalizer = new equalizer::comb();
+        d_equalizer = std::make_unique<equalizer::comb>();
         break;
     case LS:
         dout << "LS" << std::endl;
-        d_equalizer = new equalizer::ls();
+        d_equalizer = std::make_unique<equalizer::ls>();
         break;
     case LMS:
         dout << "LMS" << std::endl;
-        d_equalizer = new equalizer::lms();
+        d_equalizer = std::make_unique<equalizer::lms>();
         break;
     case STA:
         dout << "STA" << std::endl;
-        d_equalizer = new equalizer::sta();
+        d_equalizer = std::make_unique<equalizer::sta>();
         break;
     default:
         throw std::runtime_error("Algorithm not implemented");
